@@ -1,6 +1,9 @@
 from twisted.internet.protocol import Protocol, ClientFactory
 from twisted.internet import reactor
 from twisted.protocols.basic import LineReceiver
+import time
+from treading import Tread
+import event
 
 
 class ChatClient(LineReceiver):
@@ -8,6 +11,7 @@ class ChatClient(LineReceiver):
         self.name = name
         self.state = "OFFLINE"
         self.work = True
+        event.Event(name="new_message", callback=self.send_message)
 
     def connectionMade(self):
         #while self.work:
@@ -27,8 +31,14 @@ class ChatClient(LineReceiver):
     def connectionLost(self, reason):
         print("Lost")
 
-    def send_message(self, massage):
-        self.sendLine("{}".format(message).encode("utf-8"))
+    def send_message(self, *args, **kwargs):
+        try:
+            message = MESSAGE.[0]
+        except IndexErrore:
+            print("Errore")
+        else:
+            MESSAGE.remove(message)
+            self.sendLine("{}".format(message).encode("utf-8"))
 
 class ChatClientFactory(ClientFactory):
     def __init__(self, name):
@@ -44,17 +54,48 @@ class ChatClientFactory(ClientFactory):
 
     def buildProtocol(self, addr):
         self.connection = ChatClient(self.name)
+        message = Messagr()
+        worker = Thread(target="message.add_message", args=(MESSAGE,))
+        worker.start()
         return self.connection
 
     def send(self, message):
         self.connection.send_message(massage)
 
+class Message():
+
+    @event.Event.origin("new_message", post=True)
+    def add_message(self, message):
+        for _ in range(20):
+            time.sleep(2)
+            message.append("text")
+
+
+#     def executor():
+#         print("event done")
+
+#     class Test():
+#         @event.Event.origin("rest", post=True)
+#         def work(self):
+#             print("I generate event as rest")
+
+
 if __name__ == "__main__":
 
-    #argument parser
-    import time
 
+
+    # ev = event.Event(name = "rest")
+    # ev.register("rest", executor)
+
+    # test = Test()
+    # test.work()
+
+
+
+
+    #argument parser
+    
     chat = ChatClientFactory("Slava")
     reactor.connectTCP("192.168.4.123", 5000, chat)
     reactor.run()
-    while True:
+    
